@@ -30,6 +30,8 @@ public class UserBadge {
 
     @PrePersist
     protected void onCreate() {
-        this.earnedAt = LocalDateTime.now();
+        if (this.earnedAt == null) {
+            this.earnedAt = LocalDateTime.now();
+        }
     }
 }

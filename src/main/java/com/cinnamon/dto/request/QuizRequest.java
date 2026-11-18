@@ -1,6 +1,6 @@
 package com.cinnamon.dto.request;
 
-import com.cinnamon.entity.QuizType;
+import com.cinnamon.enums.QuizType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

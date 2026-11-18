@@ -1,5 +1,6 @@
 package com.cinnamon.entity;
 
+import com.cinnamon.enums.BadgeConditionType;
 import jakarta.persistence.*;
 import lombok.*;
 

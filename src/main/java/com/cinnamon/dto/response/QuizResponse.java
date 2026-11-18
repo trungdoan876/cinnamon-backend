@@ -1,6 +1,6 @@
 package com.cinnamon.dto.response;
 
-import com.cinnamon.entity.QuizType;
+import com.cinnamon.enums.QuizType;
 import lombok.Builder;
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.cinnamon.entity;
+package com.cinnamon.enums;
 
 public enum LessonType {
     VOCABULARY,
@@ -8,3 +8,4 @@ public enum LessonType {
     WRITING,
     SPEAKING
 }
+

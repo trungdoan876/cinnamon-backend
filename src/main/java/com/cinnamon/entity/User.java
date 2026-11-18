@@ -1,5 +1,6 @@
 package com.cinnamon.entity;
 
+import com.cinnamon.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,7 +8,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -53,14 +53,6 @@ public class User implements UserDetails {
 
     @Column(name = "last_login_date")
     private LocalDate lastLoginDate;
-
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
 
     // ===================== UserDetails methods =====================
 

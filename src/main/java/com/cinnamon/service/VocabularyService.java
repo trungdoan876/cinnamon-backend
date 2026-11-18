@@ -14,6 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * VocabularyService - Dịch vụ quản lý các thẻ từ vựng (Flashcard) theo từng bài học.
+ * Cung cấp:
+ * - Lấy danh sách từ vựng kèm phiên âm IPA, định nghĩa, câu ví dụ, hình ảnh và audio phát âm.
+ * - Thêm mới, cập nhật và xóa thẻ từ vựng trong bài học.
+ */
 @Service
 @RequiredArgsConstructor
 public class VocabularyService {
@@ -21,6 +27,12 @@ public class VocabularyService {
     private final VocabularyRepository vocabularyRepository;
     private final LessonRepository lessonRepository;
 
+    /**
+     * Lấy danh sách toàn bộ từ vựng thuộc về một bài học cụ thể.
+     *
+     * @param lessonId ID bài học
+     * @return Danh sách VocabularyResponse
+     */
     public List<VocabularyResponse> getVocabulariesByLessonId(Long lessonId) {
         return vocabularyRepository.findByLessonId(lessonId)
                 .stream()
@@ -28,6 +40,12 @@ public class VocabularyService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Thêm mới một thẻ từ vựng vào bài học.
+     *
+     * @param request chứa lessonId, word, pronunciation, definition, exampleSentence, imageUrl, audioUrl
+     * @return VocabularyResponse của từ vựng vừa tạo
+     */
     @Transactional
     public VocabularyResponse addVocabulary(VocabularyRequest request) {
         Lesson lesson = lessonRepository.findById(request.getLessonId())
@@ -46,6 +64,13 @@ public class VocabularyService {
         return toResponse(vocabularyRepository.save(vocab));
     }
 
+    /**
+     * Chỉnh sửa thông tin của một thẻ từ vựng theo ID.
+     *
+     * @param id      ID thẻ từ vựng cần sửa
+     * @param request dữ liệu cập nhật mới
+     * @return VocabularyResponse sau khi cập nhật
+     */
     @Transactional
     public VocabularyResponse updateVocabulary(Long id, VocabularyRequest request) {
         Vocabulary vocab = vocabularyRepository.findById(id)
@@ -61,6 +86,11 @@ public class VocabularyService {
         return toResponse(vocabularyRepository.save(vocab));
     }
 
+    /**
+     * Xóa thẻ từ vựng khỏi bài học.
+     *
+     * @param id ID thẻ từ vựng cần xóa
+     */
     @Transactional
     public void deleteVocabulary(Long id) {
         Vocabulary vocab = vocabularyRepository.findById(id)
@@ -68,6 +98,9 @@ public class VocabularyService {
         vocabularyRepository.delete(vocab);
     }
 
+    /**
+     * Chuyển đổi Entity Vocabulary sang DTO VocabularyResponse để trả về client.
+     */
     private VocabularyResponse toResponse(Vocabulary vocab) {
         return VocabularyResponse.builder()
                 .id(vocab.getId())

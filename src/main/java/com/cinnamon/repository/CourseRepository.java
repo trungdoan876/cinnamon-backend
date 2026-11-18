@@ -1,7 +1,7 @@
 package com.cinnamon.repository;
 
 import com.cinnamon.entity.Course;
-import com.cinnamon.entity.CourseLevel;
+import com.cinnamon.enums.CourseLevel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

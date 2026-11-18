@@ -45,6 +45,10 @@ public class ApiResponse<T> {
                 .build();
     }
 
+    public static <T> ApiResponse<T> error(String message) {
+        return error(401, message);
+    }
+
     public static <T> ApiResponse<T> error(int code, String message) {
         return ApiResponse.<T>builder()
                 .code(code)

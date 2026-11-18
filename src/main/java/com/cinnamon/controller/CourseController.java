@@ -3,7 +3,7 @@ package com.cinnamon.controller;
 import com.cinnamon.dto.request.CourseRequest;
 import com.cinnamon.dto.response.ApiResponse;
 import com.cinnamon.dto.response.CourseResponse;
-import com.cinnamon.entity.CourseLevel;
+import com.cinnamon.enums.CourseLevel;
 import com.cinnamon.service.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +42,9 @@ public class CourseController {
     @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public ResponseEntity<ApiResponse<java.util.List<CourseResponse>>> getMyCourses(
             @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error("Vui lòng đăng nhập để tiếp tục"));
+        }
         java.util.List<CourseResponse> list = courseService.getCoursesByTeacher(userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success(list));
     }

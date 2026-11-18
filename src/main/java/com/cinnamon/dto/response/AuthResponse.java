@@ -1,6 +1,6 @@
 package com.cinnamon.dto.response;
 
-import com.cinnamon.entity.Role;
+import com.cinnamon.enums.Role;
 import lombok.Builder;
 import lombok.Data;
 

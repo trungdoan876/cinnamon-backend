@@ -1,10 +1,8 @@
 package com.cinnamon.dto.response;
 
-import com.cinnamon.entity.LessonType;
+import com.cinnamon.enums.LessonType;
 import lombok.Builder;
 import lombok.Data;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -19,5 +17,4 @@ public class LessonResponse {
     private Integer orderIndex;
     private Integer xpReward;
     private Boolean isCompleted;
-    private LocalDateTime createdAt;
 }

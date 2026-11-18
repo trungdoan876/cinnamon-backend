@@ -3,7 +3,7 @@ package com.cinnamon.controller;
 import com.cinnamon.dto.response.AdminStatsResponse;
 import com.cinnamon.dto.response.ApiResponse;
 import com.cinnamon.dto.response.UserResponse;
-import com.cinnamon.entity.Role;
+import com.cinnamon.enums.Role;
 import com.cinnamon.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

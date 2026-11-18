@@ -36,7 +36,10 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 // Public endpoints
-                .requestMatchers("/uploads/**", "/api/auth/**", "/api/version", "/actuator/**").permitAll()
+                .requestMatchers("/uploads/**", "/api/version", "/actuator/**").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/send-otp").permitAll()
+                .requestMatchers("/api/auth/me").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/courses/teacher/**").hasAnyRole("TEACHER", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/courses/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/leaderboard/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()

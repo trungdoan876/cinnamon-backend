@@ -1,6 +1,6 @@
 package com.cinnamon.dto.request;
 
-import com.cinnamon.entity.CourseLevel;
+import com.cinnamon.enums.CourseLevel;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

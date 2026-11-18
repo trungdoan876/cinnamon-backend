@@ -1,5 +1,6 @@
 package com.cinnamon.entity;
 
+import com.cinnamon.enums.CourseLevel;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,12 +36,4 @@ public class Course {
     @Column(name = "is_published")
     @Builder.Default
     private Boolean isPublished = false;
-
-    @Column(name = "created_at", updatable = false)
-    private java.time.LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = java.time.LocalDateTime.now();
-    }
 }

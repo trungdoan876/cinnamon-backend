@@ -13,7 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
 
-    long countByRole(com.cinnamon.entity.Role role);
+    long countByRole(com.cinnamon.enums.Role role);
 
     @org.springframework.data.jpa.repository.Query("SELECT u FROM User u WHERE " +
             "(:role IS NULL OR u.role = :role) AND " +
@@ -21,7 +21,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     org.springframework.data.domain.Page<User> searchUsers(
-            @org.springframework.data.repository.query.Param("role") com.cinnamon.entity.Role role,
+            @org.springframework.data.repository.query.Param("role") com.cinnamon.enums.Role role,
             @org.springframework.data.repository.query.Param("keyword") String keyword,
             org.springframework.data.domain.Pageable pageable);
 }

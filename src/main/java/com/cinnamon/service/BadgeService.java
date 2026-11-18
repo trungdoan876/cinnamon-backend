@@ -2,6 +2,7 @@ package com.cinnamon.service;
 
 import com.cinnamon.dto.response.BadgeResponse;
 import com.cinnamon.entity.*;
+import com.cinnamon.enums.BadgeConditionType;
 import com.cinnamon.exception.ResourceNotFoundException;
 import com.cinnamon.repository.*;
 import jakarta.annotation.PostConstruct;
@@ -13,6 +14,13 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * BadgeService - Dịch vụ quản lý hệ thống Huy hiệu (Badges) và phần thưởng thành tích học tập.
+ * Đảm nhiệm:
+ * - Khởi tạo danh mục huy hiệu mặc định của hệ thống khi khởi động ứng dụng (Seed Data).
+ * - Tự động quét điều kiện và trao tặng huy hiệu mới khi học viên đạt các mốc thành tích.
+ * - Tính toán thanh tiến độ hoàn thành (%) cho từng huy hiệu để hiển thị trực quan lên giao diện.
+ */
 @Service
 @RequiredArgsConstructor
 public class BadgeService {
@@ -23,6 +31,10 @@ public class BadgeService {
     private final UserXpRepository userXpRepository;
     private final UserProgressRepository userProgressRepository;
 
+    /**
+     * Tự động khởi tạo 7 huy hiệu mặc định nếu trong database chưa có dữ liệu huy hiệu nào.
+     * Chạy tự động sau khi Spring Bean được khởi tạo (@PostConstruct).
+     */
     @PostConstruct
     public void seedInitialBadges() {
         if (badgeRepository.count() == 0) {
@@ -39,6 +51,17 @@ public class BadgeService {
         }
     }
 
+    /**
+     * Quét và đối chiếu các tiêu chí thành tích của người dùng để mở khóa huy hiệu mới.
+     * Các tiêu chí kiểm tra gồm:
+     * - LESSONS_COMPLETED: Số lượng bài học đã hoàn thành.
+     * - STREAK_DAYS: Số ngày đăng nhập học liên tục.
+     * - LEVEL_REACHED: Cấp độ level hiện tại.
+     * - XP_REACHED: Tổng điểm kinh nghiệm XP đạt được.
+     *
+     * @param user đối tượng người dùng cần kiểm tra
+     * @return danh sách các Huy hiệu vừa mới được mở khóa thành công
+     */
     @Transactional
     public List<Badge> evaluateBadges(User user) {
         UserXp userXp = userXpRepository.findByUserId(user.getId())
@@ -58,6 +81,7 @@ public class BadgeService {
         List<Badge> newlyAwarded = new ArrayList<>();
 
         for (Badge badge : allBadges) {
+            // Nếu học viên đã có huy hiệu này rồi thì bỏ qua
             if (ownedBadgeIds.contains(badge.getId())) continue;
 
             boolean qualified = false;
@@ -68,6 +92,7 @@ public class BadgeService {
                 case XP_REACHED -> qualified = totalXp >= badge.getConditionValue();
             }
 
+            // Nếu đủ điều kiện, lưu vào bảng user_badges và thêm vào danh sách vừa mở khóa
             if (qualified) {
                 UserBadge ub = UserBadge.builder()
                         .user(user)
@@ -82,11 +107,18 @@ public class BadgeService {
         return newlyAwarded;
     }
 
+    /**
+     * Lấy toàn bộ danh sách huy hiệu hệ thống kèm trạng thái đã đạt được hay chưa và tiến trình % của người dùng.
+     * Trước khi lấy, hệ thống tự động kích hoạt hàm evaluateBadges để mở khóa ngay nếu người dùng vừa đạt điều kiện.
+     *
+     * @param email email của người dùng
+     * @return Danh sách BadgeResponse kèm progressPercent (0% - 100%)
+     */
     public List<BadgeResponse> getUserBadges(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Người dùng không tồn tại"));
 
-        // Trigger evaluation first
+        // Kích hoạt quét thành tích trước khi trả về dữ liệu
         evaluateBadges(user);
 
         UserXp userXp = userXpRepository.findByUserId(user.getId())

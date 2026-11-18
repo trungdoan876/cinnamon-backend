@@ -13,6 +13,9 @@ public class RegisterRequest {
     @Pattern(regexp = "\\d{6}", message = "Mã OTP phải gồm đúng 6 chữ số")
     private String otp;
 
+    @NotBlank(message = "Thiếu otpToken. Vui lòng bấm gửi lại mã OTP")
+    private String otpToken;
+
     @NotBlank(message = "Username không được để trống")
     @Size(min = 3, max = 50, message = "Username phải từ 3-50 ký tự")
     private String username;

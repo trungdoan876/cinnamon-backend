@@ -8,6 +8,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+/**
+ * EmailService - Dịch vụ gửi thư điện tử tự động qua giao thức SMTP (JavaMailSender).
+ * Đảm nhiệm việc xây dựng giao diện email HTML chuyên nghiệp và gửi mã OTP xác thực
+ * khi đăng ký tài khoản hoặc lấy lại mật khẩu.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -18,6 +23,14 @@ public class EmailService {
     @Value("${spring.mail.username:wello3606@gmail.com}")
     private String fromEmail;
 
+    /**
+     * Soạn thảo và gửi email chứa mã OTP đến hòm thư của người dùng.
+     * Sử dụng định dạng HTML với thiết kế responsive, thương hiệu Cinnamon và cảnh báo bảo mật.
+     *
+     * @param toEmail  địa chỉ email người nhận
+     * @param otp      mã xác thực 6 số
+     * @param purpose  mục đích gửi ("REGISTER" hoặc "LOGIN" / "FORGOT_PASSWORD")
+     */
     public void sendOtpEmail(String toEmail, String otp, String purpose) {
         boolean forRegister = "REGISTER".equalsIgnoreCase(purpose);
         String badgeTitle = forRegister ? "XÁC THỰC ĐĂNG KÝ" : "XÁC THỰC ĐĂNG NHẬP";

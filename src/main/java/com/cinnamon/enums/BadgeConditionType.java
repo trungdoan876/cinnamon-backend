@@ -1,4 +1,4 @@
-package com.cinnamon.entity;
+package com.cinnamon.enums;
 
 public enum BadgeConditionType {
     XP_REACHED,
@@ -6,3 +6,4 @@ public enum BadgeConditionType {
     LESSONS_COMPLETED,
     LEVEL_REACHED
 }
+

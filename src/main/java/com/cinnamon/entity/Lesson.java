@@ -1,5 +1,6 @@
 package com.cinnamon.entity;
 
+import com.cinnamon.enums.LessonType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -42,12 +43,4 @@ public class Lesson {
     @Column(name = "xp_reward")
     @Builder.Default
     private Integer xpReward = 10;
-
-    @Column(name = "created_at", updatable = false)
-    private java.time.LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = java.time.LocalDateTime.now();
-    }
 }

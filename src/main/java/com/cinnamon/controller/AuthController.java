@@ -36,13 +36,21 @@ public class AuthController {
     }
 
     @PostMapping("/send-otp")
-    public ResponseEntity<ApiResponse<Void>> sendOtp(@Valid @RequestBody SendOtpRequest request) {
-        authService.sendOtp(request);
-        return ResponseEntity.ok(ApiResponse.message("Mã OTP đã được gửi tới email của bạn. Vui lòng kiểm tra hộp thư (hoặc mục Spam)."));
+    public ResponseEntity<ApiResponse<String>> sendOtp(@Valid @RequestBody SendOtpRequest request) {
+        String otpToken = authService.sendOtp(request);
+        return ResponseEntity.ok(ApiResponse.<String>builder()
+                .code(200)
+                .message("Mã OTP đã được gửi tới email của bạn. Vui lòng kiểm tra hộp thư (hoặc mục Spam).")
+                .data(otpToken)
+                .build());
     }
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Vui lòng đăng nhập để tiếp tục"));
+        }
         UserResponse response = authService.getMe(userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success(response));
     }

@@ -1,7 +1,7 @@
 package com.cinnamon.controller;
 
 import com.cinnamon.dto.response.ApiResponse;
-import com.cinnamon.service.storage.StorageService;
+import com.cinnamon.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
