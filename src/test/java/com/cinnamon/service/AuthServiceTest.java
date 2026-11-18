@@ -28,6 +28,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+import org.springframework.security.authentication.AuthenticationManager;
+
 /**
  * Unit Test cho tính năng Đăng ký tài khoản (AuthService.register)
  * Kết hợp JUnit 5 + Mockito theo cấu trúc Arrange - Act - Assert.
@@ -51,12 +53,13 @@ class AuthServiceTest {
     private JwtService jwtService;
 
     @Mock
-    private org.springframework.security.authentication.AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     @InjectMocks
     private AuthService authService;
 
     private RegisterRequest validRequest;
+    private User existingUser;
 
     @BeforeEach
     void setUp() {
@@ -67,6 +70,18 @@ class AuthServiceTest {
         validRequest.setFullName("Test User");
         validRequest.setOtp("123456");
         validRequest.setOtpToken("mock_jwt_otp_token");
+
+        // Tạo sẵn User mẫu đại diện cho tài khoản
+        // đã có trong Database để login
+        existingUser = User.builder()
+                .id(1L)
+                .username("testuser")
+                .email("testlogin@cinnamon.com")
+                .password("hashed_password")
+                .role(Role.STUDENT)
+                .isActive(true)
+                .streakDays(1)
+                .build();
     }
 
     @Test
@@ -177,4 +192,88 @@ class AuthServiceTest {
         assertThat(exception.getMessage()).contains("Mã OTP đã hết hạn");
         verify(userRepository, never()).save(any());
     }
+
+    // LUỒNG ĐĂNG NHẬP
+    @Test
+    @DisplayName("LOG-01: ĐĂNG NHẬP THÀNH CÔNG")
+    void login_Success() {
+        // Arrange
+        when(userRepository.findByEmail("testlogin@cinnamon.com"))
+                .thenReturn(Optional.of(existingUser));
+        // kiểm tra pass luôn đúng
+        when(passwordEncoder.matches(any(), any()))
+                .thenReturn(true);
+
+        // sinh token giả lập
+        when(jwtService.generateToken(any()))
+                .thenReturn("mock_login_jwt_token");
+        // Act
+        LoginRequest loginReq = new LoginRequest("testlogin@cinnamon.com", "hashed_password");
+        AuthResponse response = authService.login(loginReq);
+
+        // Assert - kiểm tra lại
+        assertThat(response).isNotNull();
+        assertThat(response.getToken()).isEqualTo("mock_login_jwt_token");
+        // hệ thống có gọi save() để lưu chuỗi
+        // streak mới vào DB
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("LOG-02: Không tìm thấy email")
+    void login_NotFoundEmail() {
+        // arrange
+        when(userRepository.findByEmail("unknown@cinnamon.com"))
+                .thenReturn(Optional.empty());
+        // act
+        LoginRequest loginReq = new LoginRequest("unknown@cinnamon.com", "Password123@");
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
+            authService.login(loginReq);
+        });
+        // assert
+        assertThat(exception.getMessage()).contains("Không tìm thấy tài khoản với email này");
+        verify(passwordEncoder, never()).matches(any(), any());
+    }
+
+    @Test
+    @DisplayName("LOG-03: Tài khoản bị khóa")
+    void loginAccountLock() {
+        // arrange
+        existingUser.setIsActive(false);
+        when(userRepository.findByEmail("testAccountLock@cinnamon.com"))
+                .thenReturn(Optional.of(existingUser));
+        // act
+        LoginRequest loginReq = new LoginRequest("testAccountLock@cinnamon.com", "Password123@");
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
+            authService.login(loginReq);
+        });
+        // assert
+        assertThat(exception.getMessage()).contains("Tài khoản của bạn đã bị khóa");
+        // khi đăng nhập thất bại, ko lưu vào db
+        // kiểm tra ko được gọi hàm save và ko sinh mã token
+        verify(userRepository, never()).save(any(User.class));
+        verify(jwtService, never()).generateToken(any(User.class));
+
+    }
+
+    @Test
+    @DisplayName("LOG-04: Đăng nhập sai mật khẩu")
+    void login_PasswordFault() {
+        // arrange
+        when(userRepository.findByEmail("testPasssword@cinnamon.com"))
+                .thenReturn(Optional.of(existingUser));
+        // gán sai pass
+        when(passwordEncoder.matches(any(), any()))
+                .thenReturn(false);
+        // act
+        LoginRequest loginReq = new LoginRequest("testPasssword@cinnamon.com", "WrongPassword999@");
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
+            authService.login(loginReq);
+        });
+        // assert
+        assertThat(exception.getMessage()).contains("Email hoặc mật khẩu không chính xác");
+        verify(userRepository, never()).save(any(User.class));
+        verify(jwtService, never()).generateToken(any(User.class));
+    }
+
 }
